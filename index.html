@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CultivaTech - Simulador Agrícola</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #1b5e20;
+        }
+        .status-panel {
+            display: flex;
+            justify-content: space-around;
+            background-color: #c8e6c9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        select, button {
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 2px solid #81c784;
+        }
+        button {
+            background-color: #4caf50;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #388e3c;
+        }
+        .log {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f1f8e9;
+            border-left: 5px solid #4caf50;
+            border-radius: 4px;
+            min-height: 50px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🌱 CultivaTech</h1>
+    <p>Valorizando a agricultura através da tecnologia e da sustentabilidade. Cuide do seu solo!</p>
+
+    <div class="status-panel">
+        <div>Saúde do Solo: <span id="solo">100</span>%</div>
+        <div>Pontos de Sustentabilidade: <span id="pontos">0</span></div>
+    </div>
+
+    <div class="controls">
+        <label for="cultura">Escolha o que plantar:</label>
+        <select id="cultura">
+            <option value="milho">🌽 Milho (Gasta água média)</option>
+            <option value="soja">🫛 Soja (Fixa nitrogênio, bom para o solo)</option>
+            <option value="tomate">🍅 Tomate (Exigente em nutrientes)</option>
+        </select>
+
+        <label for="manejo">Técnica de Manejo:</label>
+        <select id="manejo">
+            <option value="sustentavel">Organic/Sustentável (Preserva o solo)</option>
+            <option value="intensivo">Intensivo Convencional (Mais rápido, desgasta o solo)</option>
+        </select>
+
+        <button onclick="colherSafra()">Plantar e Colher</button>
+    </div>
+
+    <div class="log" id="mensagem">
+        Escolha suas opções e clique em "Plantar e Colher" para iniciar sua jornada agrícola!
+    </div>
+</div>
+
+<script>
+    // Variáveis de estado do jogo
+    let saudeSolo = 100;
+    let pontosSustentabilidade = 0;
+    let ultimaCultura = "";
+
+    function colherSafra() {
+        const culturaSelecionada = document.getElementById("cultura").value;
+        const manejoSelecionado = document.getElementById("manejo").value;
+        const mensagemDiv = document.getElementById("mensagem");
+
+        let ganhoPontos = 0;
+        let perdaSolo = 0;
+        let textoResultado = "";
+
+        // Lógica de rotação de culturas (Valorização do conhecimento agrícola)
+        let bonusRotacao = false;
+        if (ultimaCultura !== "" && ultimaCultura !== culturaSelecionada) {
+            bonusRotacao = true;
+        }
+
+        // Configuração base de cada planta
+        if (culturaSelecionada === "soja") {
+            ganhoPontos = 15;
+            perdaSolo = manejoSelecionado === "sustentavel" ? -5 : 5; // Soja sustentável recupera o solo!
+        } else if (culturaSelecionada === "milho") {
+            ganhoPontos = 10;
+            perdaSolo = manejoSelecionado === "sustentavel" ? 5 : 15;
+        } else if (culturaSelecionada === "tomate") {
+            ganhoPontos = 25; // Dá mais pontos/lucro, mas exige mais do solo
+            perdaSolo = manejoSelecionado === "sustentavel" ? 15 : 30;
+        }
+
+        // Aplicação do manejo e bônus
+        if (bonusRotacao) {
+            ganhoPontos += 10;
+            perdaSolo -= 5; // Reduz o desgaste do solo
+            textoResultado += "<strong>Ótimo! Você fez rotação de culturas. Isso mantém o solo fértil!</strong><br>";
+        }
+
+        if (manejoSelecionado === "sustentavel") {
+            ganhoPontos += 5;
+            textoResultado += "Você usou técnicas sustentáveis. Consumidores valorizam produtos limpos!<br>";
+        } else {
+            textoResultado += "O manejo intensivo desgastou seus recursos hídricos e a terra.<br>";
+        }
+
+        // Atualizando os status
+        saudeSolo -= perdaSolo;
+        if (saudeSolo > 100) saudeSolo = 100; // Limite máximo
+        if (saudeSolo < 0) saudeSolo = 0;
+
+        pontosSustentabilidade += ganhoPontos;
+
+        // Atualizando a última cultura plantada
+        ultimaCultura = culturaSelecionada;
+
+        // Atualizando a tela (DOM)
+        document.getElementById("solo").innerText = saudeSolo;
+        document.getElementById("pontos").innerText = pontosSustentabilidade;
+
+        // Fim de jogo ou feedback
+        if (saudeSolo <= 20) {
+            textoResultado += "<br>⚠️ <strong>Alerta:</strong> Seu solo está exausto! Pratique a rotação com Soja e use manejo sustentável para recuperá-lo.";
+        }
+        if (saudeSolo === 0) {
+            textoResultado = "💥 <strong>Fim de jogo!</strong> O solo desertificou devido ao mau uso. A agricultura precisa de práticas conscientes para sobreviver!";
+            document.querySelector("button").disabled = true;
+        }
+
+        mensagemDiv.innerHTML = textoResultado;
+    }
+</script>
+
+</body>
+</html>
